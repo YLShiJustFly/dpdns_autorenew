@@ -29,7 +29,7 @@ RUN chmod +x /app/entrypoint.sh
 # 环境变量
 ENV EMAIL=""
 ENV PASSWORD=""
-ENV DOMAIN="youseeicanfly.dpdns.org"
+ENV DOMAIN=""
 ENV AUTO_MODE="true"
 ENV DISPLAY=:99
 

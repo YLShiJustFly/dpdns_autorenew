@@ -13,7 +13,7 @@ from pathlib import Path
 
 EMAIL = os.environ.get('EMAIL', '')
 PASSWORD = os.environ.get('PASSWORD', '')
-DOMAIN = os.environ.get('DOMAIN', 'youseeicanfly.dpdns.org')
+DOMAIN = os.environ.get('DOMAIN', '')
 TOKEN_FILE = "/config/.dpdns_token.json"
 COOKIES_FILE = "/config/.dpdns_cookies.json"
 
