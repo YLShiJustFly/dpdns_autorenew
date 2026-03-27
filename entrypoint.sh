@@ -7,10 +7,6 @@ echo "开始运行 DPDNS 续期脚本..."
 # 检测使用哪个脚本
 if [ -f "/app/dpdns_renew_drission.py" ]; then
     SCRIPT="/app/dpdns_renew_drission.py"
-elif [ -f "/app/dpdns_renew_selenium.py" ]; then
-    SCRIPT="/app/dpdns_renew_selenium.py"
-elif [ -f "/app/dpdns_renew_docker.py" ]; then
-    SCRIPT="/app/dpdns_renew_docker.py"
 else
     echo "错误：找不到续期脚本"
     exit 1
