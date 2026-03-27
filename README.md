@@ -1,5 +1,7 @@
 # DPDNS Auto Renew
 
+[English](README.md) | [中文](README_CN.md)
+
 Automatic renewal tool for DigitalPlat DPDNS free domains using DrissionPage to bypass Cloudflare Turnstile verification.
 
 ## Features

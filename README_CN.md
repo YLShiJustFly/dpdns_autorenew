@@ -1,5 +1,7 @@
 # DPDNS 自动续期
 
+[English](README.md) | [中文](README_CN.md)
+
 使用 DrissionPage 绕过 Cloudflare Turnstile 验证码的 DigitalPlat DPDNS 免费域名自动续期工具。
 
 ## 特性

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-DPDNS 自动续期脚本 - 使用 DrissionPage
-DrissionPage 是一个专门用于绕过自动化检测的库
+DPDNS Auto Renewal Script - Using DrissionPage
+DrissionPage is a library specifically designed to bypass automation detection
 """
 
 import requests
@@ -19,18 +19,18 @@ COOKIES_FILE = "/config/.dpdns_cookies.json"
 
 
 def save_cookies(session):
-    """保存 cookies 到文件"""
+    """Save cookies to file"""
     try:
         cookies = {cookie.name: cookie.value for cookie in session.cookies}
         with open(COOKIES_FILE, 'w') as f:
             json.dump({'cookies': cookies, 'updated_at': time.time()}, f)
-        print(f"Cookies 已保存到 {COOKIES_FILE}")
+        print(f"Cookies saved to {COOKIES_FILE}")
     except Exception as e:
-        print(f"保存 cookies 失败: {e}")
+        print(f"Failed to save cookies: {e}")
 
 
 def load_cookies():
-    """从文件加载 cookies"""
+    """Load cookies from file"""
     if os.path.exists(COOKIES_FILE):
         try:
             with open(COOKIES_FILE, 'r') as f:
@@ -43,12 +43,12 @@ def load_cookies():
 
 
 def try_login_with_cookies():
-    """尝试使用保存的 cookies 登录"""
+    """Attempt to login using saved cookies"""
     cookies = load_cookies()
     if not cookies:
         return None
 
-    print("尝试使用保存的 cookies 登录...")
+    print("Attempting to login with saved cookies...")
     session = requests.Session()
 
     for name, value in cookies.items():
@@ -60,26 +60,26 @@ def try_login_with_cookies():
         if resp.status_code == 200:
             data = resp.json()
             if data.get('ok') and data.get('domain'):
-                print("使用 cookies 登录成功")
+                print("Login with cookies successful")
                 return session
     except Exception as e:
-        print(f"Cookies 登录失败: {e}")
+        print(f"Cookie login failed: {e}")
 
     return None
 
 
 def get_turnstile_token_with_drission():
-    """使用 DrissionPage 获取 turnstile token"""
-    print("启动 DrissionPage...")
+    """Use DrissionPage to get turnstile token"""
+    print("Starting DrissionPage...")
 
     try:
         from DrissionPage import ChromiumPage, ChromiumOptions
     except ImportError:
-        print("未安装 DrissionPage")
+        print("DrissionPage not installed")
         return None
 
     co = ChromiumOptions()
-    co.headless(False)  # 必须有头模式
+    co.headless(False)  # Must use headed mode
     co.set_argument('--no-sandbox')
     co.set_argument('--disable-dev-shm-usage')
     co.set_argument('--disable-gpu')
@@ -88,24 +88,24 @@ def get_turnstile_token_with_drission():
     page = None
     try:
         page = ChromiumPage(co)
-        print("浏览器启动成功")
+        print("Browser started successfully")
 
-        # 访问登录页
-        print("访问登录页面...")
+        # Visit login page
+        print("Visiting login page...")
         page.get('https://dash.domain.digitalplat.org/auth/login')
         time.sleep(5)
 
-        # 填写账号密码
-        print("填写登录信息...")
+        # Fill in credentials
+        print("Filling in login credentials...")
         page.ele('css:input[type=email]').input(EMAIL)
         page.ele('css:input[type=password]').input(PASSWORD)
 
-        # 截图
+        # Take screenshot
         page.get_screenshot('/config/login_initial.png')
-        print("截图已保存: /config/login_initial.png")
+        print("Screenshot saved: /config/login_initial.png")
 
-        # 等待 Turnstile 完成
-        print("等待 Turnstile 验证完成...")
+        # Wait for Turnstile to complete
+        print("Waiting for Turnstile verification to complete...")
         max_wait = 120
         waited = 0
         token = None
@@ -115,22 +115,22 @@ def get_turnstile_token_with_drission():
                 turnstile_input = page.ele('css:input[name=cf-turnstile-response]')
                 token = turnstile_input.attr('value')
                 if token and len(token) > 100:
-                    print(f"检测到 Turnstile token（长度: {len(token)}）")
+                    print(f"Detected Turnstile token (length: {len(token)})")
                     break
             except:
                 pass
 
-            # 检查登录按钮是否启用
+            # Check if login button is enabled
             try:
                 login_btn = page.ele('css:button[type=submit]')
                 if not login_btn.attr('disabled'):
-                    print(f"登录按钮已启用（等待了 {waited} 秒）")
-                    # 再获取一次token
+                    print(f"Login button enabled (waited {waited} seconds)")
+                    # Try to get token again
                     try:
                         turnstile_input = page.ele('css:input[name=cf-turnstile-response]')
                         token = turnstile_input.attr('value')
                         if token and len(token) > 100:
-                            print(f"检测到 Turnstile token（长度: {len(token)}）")
+                            print(f"Detected Turnstile token (length: {len(token)})")
                     except:
                         pass
                     break
@@ -141,12 +141,12 @@ def get_turnstile_token_with_drission():
             waited += 2
 
         page.get_screenshot('/config/login_final.png')
-        print(f"最终 token 长度: {len(token) if token else 0}")
+        print(f"Final token length: {len(token) if token else 0}")
 
         return token
 
     except Exception as e:
-        print(f"浏览器启动失败: {e}")
+        print(f"Browser startup failed: {e}")
         return None
 
     finally:
@@ -155,7 +155,7 @@ def get_turnstile_token_with_drission():
 
 
 def login_with_token(turnstile_token):
-    """使用 token 登录"""
+    """Login using token"""
     url = "https://dash.domain.digitalplat.org/_panel_api/api/auth/login"
 
     headers = {
@@ -175,24 +175,24 @@ def login_with_token(turnstile_token):
 
     session = requests.Session()
     resp = session.post(url, headers=headers, json=data)
-    print(f"登录响应: {resp.status_code}")
+    print(f"Login response: {resp.status_code}")
 
     if resp.status_code == 200:
         result = resp.json()
         if result.get('ok'):
-            print("登录成功")
+            print("Login successful")
             save_cookies(session)
             return session
         else:
-            print(f"登录失败: {result.get('error', '未知错误')}")
+            print(f"Login failed: {result.get('error', 'Unknown error')}")
             return None
     else:
-        print(f"登录失败: {resp.text}")
+        print(f"Login failed: {resp.text}")
         return None
 
 
 def renew_domain(session):
-    """续期域名"""
+    """Renew domain"""
     url = f"https://dash.domain.digitalplat.org/_panel_api/api/domains/{DOMAIN}/renew"
 
     headers = {
@@ -202,7 +202,7 @@ def renew_domain(session):
     }
 
     resp = session.post(url, headers=headers, json={})
-    print(f"续期响应: {resp.status_code}")
+    print(f"Renewal response: {resp.status_code}")
 
     try:
         data = resp.json()
@@ -210,51 +210,51 @@ def renew_domain(session):
         data = {"error": resp.text}
 
     if resp.status_code == 200 and data.get("ok"):
-        print("续期成功！")
+        print("Renewal successful!")
         return True
     elif "more than 180 days" in str(data):
-        print("还未到续期时间（180天内）")
+        print("Not yet time for renewal (within 180 days)")
         return True
     else:
-        print(f"续期失败: {data.get('error', resp.text)}")
+        print(f"Renewal failed: {data.get('error', resp.text)}")
         return False
 
 
 def main():
     print("=" * 60)
-    print("DPDNS 自动续期工具 (DrissionPage 版)")
+    print("DPDNS Auto Renewal Tool (DrissionPage Edition)")
     print("=" * 60)
 
     if not EMAIL or not PASSWORD:
-        print("请设置 EMAIL 和 PASSWORD 环境变量")
+        print("Please set EMAIL and PASSWORD environment variables")
         return 1
 
-    # 首先尝试使用 cookies 登录
+    # First try to login with cookies
     session = try_login_with_cookies()
 
     if not session:
-        # 使用 DrissionPage 获取 token
-        print("\n[开始] 使用 DrissionPage 获取 Turnstile Token...")
+        # Use DrissionPage to get token
+        print("\n[Start] Using DrissionPage to get Turnstile Token...")
         new_token = get_turnstile_token_with_drission()
 
         if not new_token:
-            print("\n无法获取 turnstile_token")
+            print("\nUnable to get turnstile_token")
             return 1
 
-        print(f"\n[登录] 使用 Token 登录并续期...")
+        print(f"\n[Login] Using Token to login and renew...")
         session = login_with_token(new_token)
 
     if not session:
-        print("\n登录失败")
+        print("\nLogin failed")
         return 1
 
     success = renew_domain(session)
 
     if success:
-        print("\n续期成功！")
+        print("\nRenewal successful!")
         return 0
     else:
-        print("\n续期失败")
+        print("\nRenewal failed")
         return 1
 
 
