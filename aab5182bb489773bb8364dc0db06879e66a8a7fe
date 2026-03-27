@@ -1,0 +1,25 @@
+Dockerfile
+  4d624d7428bd355f 1,4,8,17,21,24,29,36
+entrypoint.sh
+  4d624d7428bd355f 3,5,7,11,15,18,21,23-24,27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "aab5182bb489773bb8364dc0db06879e66a8a7fe",
+  "prompts": {
+    "4d624d7428bd355f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f0493c0e-76e4-4c6b-a132-73710ccb2dbe",
+        "model": "kimi-k2.5"
+      },
+      "human_author": "shiyaoliang <shiyaoliang@corp.netease.com>",
+      "messages": [],
+      "total_additions": 18,
+      "total_deletions": 18,
+      "accepted_lines": 18,
+      "overriden_lines": 0
+    }
+  }
+}
